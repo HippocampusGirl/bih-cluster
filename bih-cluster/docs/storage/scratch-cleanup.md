@@ -67,7 +67,10 @@ def move_files(args, now, trash_path):
         for name in files:
             path = join(root, name)
             logging.debug("    considering %s", path)
-            age = now - datetime.datetime.fromtimestamp(os.lstat(path).st_mtime)
+            stat_result = os.lstat(path)
+            age = now - datetime.datetime.fromtimestamp(
+                max(stat_result.st_atime, stat_result.st_mtime, stat_result.st_ctime)
+            )
             if age > MAX_AGE_SCRATCH:
                 local = path[len(args.scratch_dir) + 1 :]
                 dest = join(trash_path, local)
